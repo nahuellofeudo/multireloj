@@ -75,9 +75,21 @@ void IRAM_ATTR TimerHandler()
 void IRAM_ATTR minuto() {
   int i;
 
-  // Sumar 60 segundos a todos los contadores
+  // Sumar 1 segundo a todos los contadores
   for (i = 0; i < NUM_CIUDADES; i++) {
     ciudades[i].segundos += 1;
+  }
+
+  /* Como el programa llama a las API de ipgeolocation de a 1 ciudad a la vez,
+     es posible que algunas ciudades estén a +/- 1 segundo de otras 
+     (por la diferencia entre cuando cambia el segundo localmente y remotamente)
+     así que cuando el segundero de la primer ciudad se hace == 30, todas las ciudades
+     se sincronizan a :30
+  */
+  if (ciudades[0].segundos % 60 == 30) {
+    for (i = 0; i < NUM_CIUDADES; i++) {
+      ciudades[i].segundos = ciudades[i].segundos - (ciudades[i].segundos % 60) + 30;
+    }
   }
 
   // Señalar que hay que redibujar la pantalla
