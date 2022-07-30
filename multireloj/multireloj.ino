@@ -92,6 +92,22 @@ void IRAM_ATTR minuto() {
     }
   }
 
+  /* Muchos países cambian los horarios en verano e invierno,
+     adelantando o atrasando 1 hora.
+     Para compensar, a la 1am de cada día reiniciar todo para cargar las horas nuevas.
+     Así no hay que programar de antemano ningún cronograma de cambios de horas, 
+     ni mantener nada actualizado. La API de ipgeolocation se encarga.
+     Esto también sirve para que el reloj interno no se desfase mucho de la hora real,
+     porque se sincroniza cada 24 horas.
+  */
+  if ( ciudades[4].segundos % 60 == 01
+       && (int)((ciudades[4].segundos / 60) % 60) == 01
+       && (int)((ciudades[4].segundos / (60 * 60)) % 24) == 01 ) {
+         // A las 01:00:01, resetear el microcontrolador.
+         
+         ESP.restart();
+  }
+
   // Señalar que hay que redibujar la pantalla
   dibujar_horas = true;
 }
