@@ -7,7 +7,8 @@
 
 
 // Incluír todas las cabeceras
-#include "tft_setup.h"
+#include <Adafruit_GFX.h>     
+#include <Adafruit_ILI9341.h>  
 #include <Arduino.h>
 #include <ctype.h>
 #include "ESP8266TimerInterrupt.h"
@@ -15,7 +16,7 @@
 #include <ESP8266WiFi.h>
 #include <math.h>
 #include <string.h>
-#include <TFT_eSPI.h>
+#include <SPI.h>
 #include <WiFiUdp.h>
 #include <WiFiClient.h>
 
@@ -27,7 +28,28 @@
 #define API_HOST "api.ipgeolocation.io"
 #define API_PORT 443
 #define API_PATH "/timezone?apiKey=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX&tz="
+#define LONG_LINEA 12 // Longitud máxima de la línea de texto en pantalla
+#define TAM_LETRA 3
+#define ANCHO_LETRA (6 * TAM_LETRA)
+#define ALTO_LETRA (8 * TAM_LETRA)
 
+// Pines usados por la pantalla
+#define TFT_CS    -1     // La línea Chip Select no se usa
+#define TFT_RST   D3     // Reset está conectado a D3
+#define TFT_DC    D4     // La línea Dato/Comando está conectada a D4
+#define TFT_CLK   D5     // El reloj de SPI está conecctado a D5
+#define TFT_MISO  D6     // La línea de datos Pantalla -> ESP está conectada a D6 
+#define TFT_MOSI  D7
+
+// Definición de colores
+#define NEGRO    0x0000
+#define AZUL     0x001F
+#define ROJO     0xF800
+#define VERDE    0x07E0
+#define CIAN     0x07FF
+#define MAGENTA  0xF81F
+#define AMARILLO 0xFFE0 
+#define BLANCO   0xFFFF
 
 // DEFINICIONES -----------------------------------------------------------------------------------
 // Estructura que guarda la información de cada ciudad
@@ -60,6 +82,8 @@ lugar_t ciudades[10] = {
 ESP8266Timer ITimer;
 ESP8266_ISR_Timer ISR_Timer;
 
+// Pantalla
+Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_RST);
 
 // CÓDIGO -----------------------------------------------------------------------------------------
 
@@ -119,6 +143,7 @@ long long tomar_dd(char * texto) {
   return (texto[0] - '0') * 10 + 
           texto[1] - '0';
 }
+
 
 long long tomar_hhmmss(char *texto) {
   return tomar_dd(texto) * 60 * 60 +  // horas
@@ -200,7 +225,6 @@ void comenzar_a_contar() {
 }
 
 
-
 void setup() {
   delay(100);
   dibujar_horas = true;
@@ -210,7 +234,17 @@ void setup() {
   Serial.begin(115200);
   Serial.print(F("En setup()\n"));
 
-  // Begin WiFi
+  // Inicializar la pantalla
+  tft.begin();
+  tft.cp437(true);
+  tft.setRotation(0);
+  tft.fillScreen(NEGRO);
+  tft.setTextColor(BLANCO, NEGRO);
+  tft.setTextSize(TAM_LETRA);
+
+  imprimir_linea(0, F("Iniciando...           "));
+
+  // Inicializar WiFi
   WiFi.begin(WIFI_SSID, WIFI_PASSWD);
    
   // Connecting to WiFi...
@@ -232,23 +266,44 @@ void setup() {
   comenzar_a_contar();
 
   inicializar_segundos();
-  memoria_libre();
 }
+
+
+void imprimir_linea(const int linea, const void *string) {
+
+  int xpos = 0;
+
+  tft.setCursor(linea * ALTO_LETRA, 0);
+  tft.println((char *)string);
+}
+
 
 void refrescar_pantalla() {
   int i;
-  char texto[30];
+  char texto[16];
 
   int segundos;
   int minutos; 
   int horas;
+
+  tft.setCursor(0, 0);
+  tft.setTextColor(BLANCO, NEGRO);
+  tft.println(F("  MULTIRELOJ "));
+  tft.println(F(""));
 
   for (i = 0; i < NUM_CIUDADES; i++) {
       segundos = ciudades[i].segundos;
       minutos = (segundos / 60) % 60;
       horas = (segundos / (60*60)) % 24;
 
-      printf ("%s: %02d:%02d:%02d\n", ciudades[i].nombre, horas, minutos, segundos % 60);
+      if (horas >=9 && horas < 17) {
+        tft.setTextColor(VERDE, NEGRO);
+      } else {
+        tft.setTextColor(ROJO, NEGRO);      
+      }
+
+      snprintf(texto, 16, "  %s: %02d:%02d", ciudades[i].nombre, horas, minutos);
+      tft.println(texto);
   }
 
   printf ("\n");
