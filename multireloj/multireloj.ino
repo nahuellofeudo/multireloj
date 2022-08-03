@@ -71,8 +71,8 @@ void IRAM_ATTR TimerHandler()
 }
 
 
-// Actualiza los minutos 
-void IRAM_ATTR minuto() {
+// Actualiza los segundos 
+void IRAM_ATTR segundo() {
   int i;
 
   // Sumar 1 segundo a todos los contadores
@@ -108,8 +108,10 @@ void IRAM_ATTR minuto() {
          ESP.restart();
   }
 
-  // Señalar que hay que redibujar la pantalla
-  dibujar_horas = true;
+  // Señalar que hay que redibujar la pantalla cuando los segundos son 0
+  if (ciudades[0].segundos % 60 == 0) {
+    dibujar_horas = true;
+  }
 }
 
 
@@ -193,8 +195,8 @@ void comenzar_a_contar() {
   }
     Serial.println(F("Can't set ITimer. Select another freq. or timer"));
 
-  // Registrar la función que se llama cada 60 segundos (60.000 milisegundos)
-  ISR_Timer.setInterval(1000L, minuto);
+  // Registrar la función que se llama cada segundo (1.000 milisegundos)
+  ISR_Timer.setInterval(1000L, segundo);
 }
 
 
