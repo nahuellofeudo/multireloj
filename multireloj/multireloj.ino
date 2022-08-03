@@ -51,8 +51,8 @@ lugar_t ciudades[10] = {
   {.nombre = "LON", .identificador = "Europe/London", .segundos = 0},
   {.nombre = "ZRH", .identificador = "Europe/Zurich", .segundos = 0},
   {.nombre = "BLR", .identificador = "Asia/Kolkata", .segundos = 0},
-  {.nombre = "SYD", .identificador = "Australia/Sydney", .segundos = 0},
-  {.nombre = "TOK", .identificador = "Asia/Tokyo", .segundos = 0}
+  {.nombre = "TOK", .identificador = "Asia/Tokyo", .segundos = 0},
+  {.nombre = "SYD", .identificador = "Australia/Sydney", .segundos = 0}
 };
 #define NUM_CIUDADES (sizeof(ciudades) / sizeof(lugar_t))
 
