@@ -113,15 +113,6 @@ void IRAM_ATTR minuto() {
 }
 
 
-// Muestra la memoria libre por el puerto serie. Función de debug.
-void memoria_libre() {
-  Serial.print(F("Memoria libre: "));
-  Serial.print(ESP.getFreeHeap() / 1024,DEC);
-  Serial.println(F("KB."));
-}
-
-
-
 long long tomar_dd(char * texto) {
   return (texto[0] - '0') * 10 + 
           texto[1] - '0';
