@@ -229,8 +229,8 @@ void setup() {
   delay(100);
   dibujar_horas = true;
 
-  // put your setup code here, to run once:
-  // Setup serial port
+  // Código de inicialización:
+  // Inicializar puerto serie
   Serial.begin(115200);
   Serial.print(F("En setup()\n"));
 
@@ -246,20 +246,19 @@ void setup() {
 
   // Inicializar WiFi
   WiFi.begin(WIFI_SSID, WIFI_PASSWD);
-   
-  // Connecting to WiFi...
+
+  // Connectando a WiFi...
   Serial.print(F("Conectando a "));
   Serial.println(WIFI_SSID);
  
   // Loop continuously while WiFi is not connected
   while (WiFi.status() != WL_CONNECTED)
   {
-    delay(100);
+    delay(1000);
     Serial.print(".");
   }
    
-  // Connected to WiFi
-  Serial.println();
+  // Conexión a WiFi completa
   Serial.println(F("Conectado! Dirección IP: "));
   Serial.println(WiFi.localIP());
 
